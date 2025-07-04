@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PLAYERS = [{ id: 1, name: 'Red' }, { id: 2, name: 'Blue' }];
 
     const PIECE_CONFIG = {
-        'queen': 1, 'rook': 2, 'bishop': 2, 'knight': 2, 'pawn': 2, 'king': 1
+        'pawn': 2, 'knight': 2, 'bishop': 2, 'rook': 2, 'queen': 1, 'king': 1
     };
 
     let gameState = {};
