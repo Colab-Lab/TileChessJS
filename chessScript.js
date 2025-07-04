@@ -4,17 +4,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const p1Sidebar = document.getElementById('player-1-sidebar');
     const p2Sidebar = document.getElementById('player-2-sidebar');
 
-    const UNICODE_PIECES = {
-        'king': '♚', 'queen': '♛', 'rook': '♜', 'bishop': '♝', 'knight': '♞', 'pawn': '♟︎'
-    };
-
-    const PLAYERS = [{ id: 1, name: 'Red' }, { id: 2, name: 'Blue' }];
+    const PLAYERS = [
+        { id: 1, name: 'Red', color: 'red' },
+        { id: 2, name: 'Blue', color: 'blue' }
+    ];
 
     const PIECE_CONFIG = {
         'pawn': 2, 'knight': 2, 'bishop': 2, 'rook': 2, 'queen': 1, 'king': 1
     };
 
+    const IMAGE_ASSETS = {
+        'bg': 'Assets/Pieces/bg.jpg',
+        'pawn': 'Assets/Pieces/pawn.png',
+        'knight': 'Assets/Pieces/knight.png',
+        'bishop': 'Assets/Pieces/bishop.png',
+        'rook': 'Assets/Pieces/rook.png',
+        'queen': 'Assets/Pieces/queen.png',
+        'king': 'Assets/Pieces/king.png'
+    };
+
     let gameState = {};
+    let preloadedImages = {};
+    let pieceGraphicsCache = {};
+
+    function preloadImages(callback) {
+        let loadedCount = 0;
+        const imageKeys = Object.keys(IMAGE_ASSETS);
+        const totalImages = imageKeys.length;
+
+        imageKeys.forEach(key => {
+            const img = new Image();
+            img.onload = () => {
+                loadedCount++;
+                preloadedImages[key] = img;
+                if (loadedCount === totalImages) {
+                    callback();
+                }
+            };
+            img.onerror = () => {
+                console.error(`Failed to load image: ${IMAGE_ASSETS[key]}`);
+                // Handle error, maybe show a message to the user
+            };
+            img.src = IMAGE_ASSETS[key];
+        });
+    }
+
+    function createPieceGraphics(type, playerIndex) {
+        const cacheKey = `${type}-${playerIndex}`;
+        if (pieceGraphicsCache[cacheKey]) {
+            return pieceGraphicsCache[cacheKey];
+        }
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 80; // Match square size
+        canvas.width = size;
+        canvas.height = size;
+
+        const bgColor = PLAYERS[playerIndex].color;
+        const bgImage = preloadedImages['bg'];
+        const pieceImage = preloadedImages[type];
+
+        // 1. Draw background texture
+        if (bgImage) {
+            ctx.drawImage(bgImage, 0, 0, size, size);
+        }
+
+        // 2. Apply color overlay
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, size, size);
+
+        // 3. Reset composite operation and draw piece pictogram
+        ctx.globalCompositeOperation = 'source-over';
+        if (pieceImage) {
+            ctx.drawImage(pieceImage, 0, 0, size, size);
+        }
+
+        const dataUrl = canvas.toDataURL();
+        pieceGraphicsCache[cacheKey] = dataUrl;
+        return dataUrl;
+    }
+
 
     function getInitialPieceSet() {
         const set = [];
@@ -205,30 +276,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        /**
-         * Calculates valid moves for sliding pieces (Rook, Bishop, Queen).
-         * This logic allows pieces to "pass through" friendly pieces.
-         */
         function getSlidingMoves(directions) {
             directions.forEach(dir => {
                 let currentPos = { ...pos };
-                for (let i = 0; i < 100; i++) { // Safety break for potentially infinite boards
+                for (let i = 0; i < 100; i++) { 
                     currentPos = { x: currentPos.x + dir.x, y: currentPos.y + dir.y };
                     const key = `${currentPos.x},${currentPos.y}`;
                     const target = board.get(key);
 
-                    if (target) { // If a square has a piece on it
+                    if (target) { 
                         if (target.playerIndex === playerIndex) {
-                            // Friendly piece: cannot land here, but the line of sight continues.
-                            // The original python code implements this by explicitly continuing the loop.
                             continue;
                         } else {
-                            // Enemy piece: can land here (capture), but the line of sight is blocked.
                             moves.push(currentPos);
                             break;
                         }
                     } else {
-                        // Empty square: can land here, and the line of sight continues.
                         moves.push(currentPos);
                     }
                 }
@@ -321,14 +384,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 square.dataset.y = r;
 
                 if (piece) {
-                    const pieceEl = document.createElement('span');
+                    const pieceEl = document.createElement('img');
                     pieceEl.classList.add('piece', `player${piece.playerIndex + 1}`);
-                    pieceEl.textContent = UNICODE_PIECES[piece.type];
+                    pieceEl.src = createPieceGraphics(piece.type, piece.playerIndex);
                     square.appendChild(pieceEl);
                     square.classList.add('occupied', `player${piece.playerIndex + 1}-square`);
                 } else {
                     square.classList.remove('occupied');
-                    square.classList.remove('player1-square', 'player2-square'); // Add more classes if you have more players
+                    square.classList.remove('player1-square', 'player2-square');
                 }
 
                 if (gameState.selectedBoardPiece && c === gameState.selectedBoardPiece.pos.x && r === gameState.selectedBoardPiece.pos.y) {
@@ -371,8 +434,11 @@ document.addEventListener('DOMContentLoaded', () => {
         tile.classList.add('piece-info');
         const pieceDiv = document.createElement('div');
         pieceDiv.classList.add('piece', `player${playerIndex + 1}`);
-        pieceDiv.textContent = UNICODE_PIECES[type];
         
+        const pieceImg = document.createElement('img');
+        pieceImg.src = createPieceGraphics(type, playerIndex);
+        pieceDiv.appendChild(pieceImg);
+
         const piecesToPlace = playerIndex === 0 ? gameState.deployment.p1_pieces : gameState.deployment.p2_pieces;
         const isKingLastPiece = piecesToPlace.length === 1 && piecesToPlace[0] === 'king';
 
@@ -419,5 +485,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    init();
+    preloadImages(() => {
+        console.log("All images preloaded.");
+        init();
+    });
 });

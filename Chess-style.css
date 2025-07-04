@@ -4,8 +4,6 @@
     --square-dark: #b58863;
     --square-highlight: rgba(125, 255, 125, 0.5);
     --square-selected: rgba(255, 255, 0, 0.5);
-    --player1-color: #e74c3c;
-    --player2-color: #3498db;
     --sidebar-bg: #2c3e50;
     --font-color: #ecf0f1;
 }
@@ -57,7 +55,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 44px;
     user-select: none;
     box-sizing: border-box;
     border: 1px solid #444;
@@ -79,7 +76,6 @@ body {
     width: 60px;
     height: 60px;
     padding: 5px;
-    font-size: 50px;
     border-radius: 5px;
     background-color: #34495e;
     display: flex;
@@ -87,6 +83,11 @@ body {
     align-items: center;
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+.sidebar .piece img {
+    width: 100%;
+    height: 100%;
 }
 
 .sidebar .piece.selected {
@@ -103,25 +104,17 @@ body {
 
 .piece {
     cursor: pointer;
+    width: 100%;
+    height: 100%;
 }
 
 .square.occupied {
-    background-color: #F5F5F5; /* Off-white color */
-    border: 5px solid #F5F5F5; /* Thick border with same color as background */
-    border-radius: 10px; /* Radiused border */
 }
 
-.player1 { color: var(--player1-color); }
-.player2 { color: var(--player2-color); }
-
 .square.occupied.player1-square {
-    border: 5px solid #dc3545; /* Red border for player 1 */
-    border-radius: 10px;
 }
 
 .square.occupied.player2-square {
-    border: 5px solid #007bff; /* Blue border for player 2 */
-    border-radius: 10px;
 }
 
 .valid-move-highlight {
