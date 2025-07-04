@@ -1,0 +1,134 @@
+:root {
+    --board-bg: #333;
+    --square-light: #f0d9b5;
+    --square-dark: #b58863;
+    --square-highlight: rgba(125, 255, 125, 0.5);
+    --square-selected: rgba(255, 255, 0, 0.5);
+    --player1-color: #e74c3c;
+    --player2-color: #3498db;
+    --sidebar-bg: #2c3e50;
+    --font-color: #ecf0f1;
+}
+
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #2c3e50;
+    color: var(--font-color);
+}
+
+#game-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    height: 90vh;
+}
+
+#main-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px;
+}
+
+#status-message {
+    height: 40px;
+    margin: 10px 0;
+    font-size: 1.5em;
+    text-align: center;
+}
+
+#board-container {
+    display: grid;
+    border: 2px solid #1a252f;
+    background-color: var(--board-bg);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.square {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 44px;
+    user-select: none;
+    box-sizing: border-box;
+    border: 1px solid #444;
+}
+
+.sidebar {
+    width: 150px;
+    background-color: var(--sidebar-bg);
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.sidebar .piece {
+    width: 60px;
+    height: 60px;
+    padding: 5px;
+    font-size: 50px;
+    border-radius: 5px;
+    background-color: #34495e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.sidebar .piece.selected {
+    background-color: var(--square-selected);
+}
+
+.sidebar .piece:hover {
+    background-color: #4a6572;
+}
+
+.sidebar .piece-info {
+    text-align: center;
+}
+
+.piece {
+    cursor: pointer;
+}
+
+.square.occupied {
+    background-color: #F5F5F5; /* Off-white color */
+    border: 5px solid #F5F5F5; /* Thick border with same color as background */
+    border-radius: 10px; /* Radiused border */
+}
+
+.player1 { color: var(--player1-color); }
+.player2 { color: var(--player2-color); }
+
+.square.occupied.player1-square {
+    border: 5px solid #dc3545; /* Red border for player 1 */
+    border-radius: 10px;
+}
+
+.square.occupied.player2-square {
+    border: 5px solid #007bff; /* Blue border for player 2 */
+    border-radius: 10px;
+}
+
+.valid-move-highlight {
+    box-shadow: inset 0 0 0px 3px var(--square-highlight);
+    border-radius: 50%;
+}
+
+.selected-piece-highlight {
+    background-color: var(--square-selected);
+}
